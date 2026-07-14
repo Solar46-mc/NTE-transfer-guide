@@ -5,7 +5,7 @@
 
 const CONFIG = {
   // ★ 自分のリポジトリを作成したら、このURLを書き換えてください。
-  GITHUB_REPO_URL: 'https://github.com/YOUR_USERNAME/nte-transfer-guide',
+  GITHUB_REPO_URL: 'https://github.com/Solar46-mc/NTE-transfer-guide/',
   MAP_IMAGE_SRC: 'images/Neverness_Map.png',
   MAP_IMAGE_SIZE: 5632,
   MAX_VIA: 3,
@@ -209,7 +209,11 @@ function routeStripHTML(route) {
   const parts = [];
   route.legs.forEach(leg => {
     if (leg.transfer) {
-      parts.push(`<span class="route-strip-xfer" title="${leg.label || '乗り換え'}">${leg.kind === 'walk' ? '🚶' : '⇅'}</span>`);
+      const sameStation = leg.stationFrom === leg.stationTo;
+      const title = sameStation
+        ? `${stationName(leg.stationFrom)}（${leg.label || '乗り換え'}）`
+        : `${stationName(leg.stationFrom)} → ${stationName(leg.stationTo)}（${leg.label || '乗り換え'}）`;
+      parts.push(`<span class="route-strip-xfer" title="${title}">${leg.kind === 'walk' ? '🚶' : '⇅'}</span>`);
     } else {
       parts.push(`<span class="route-strip-seg" style="background:${lineOf(leg.lineId).hex}" title="${lineOf(leg.lineId).name}"></span>`);
     }
@@ -220,9 +224,13 @@ function routeStripHTML(route) {
 function routeTimelineHTML(route) {
   const legsHtml = route.legs.map(leg => {
     if (leg.transfer) {
+      const sameStation = leg.stationFrom === leg.stationTo;
+      const stationText = sameStation
+        ? stationName(leg.stationFrom)
+        : `${stationName(leg.stationFrom)} → ${stationName(leg.stationTo)}`;
       return `<div class="leg-transfer">
         <span class="transfer-icon">${leg.kind === 'walk' ? '🚶' : '🔁'}</span>
-        <span class="transfer-text">${leg.label || (stationName(leg.stationFrom) + ' 乗り換え')}（${leg.gate === 'inside' ? '改札内' : '改札外'}）</span>
+        <span class="transfer-text"><strong>${stationText}</strong>　${leg.label || '乗り換え'}（${leg.gate === 'inside' ? '改札内' : '改札外'}）</span>
         <span class="transfer-mins">${leg.minutes}分</span>
       </div>`;
     }
